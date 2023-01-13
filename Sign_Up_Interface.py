@@ -1,6 +1,7 @@
 #Modules
 import tkinter as tk
 from tkinter import *
+from tkinter import messagebox as msg
 import os
 import math
 import random
@@ -17,7 +18,7 @@ def clear_everything():
 ##Login_verifcation
 def check_details(email, password):
     flag = 0
-    connection = sql.connect(host = "localhost", user = "root", password = "Dongle@123", database = "dds_user")
+    connection = sql.connect(host = "localhost", user = "root", password = "root", database = "dds_user")
     mysql = connection.cursor()
     mysql.execute("Select * from users")
     for i in mysql:
@@ -93,7 +94,7 @@ def verification(temp, email, passwrd):
     if temp.get() == OTP:
         go_ahead(email,passwrd)
     else:
-        tk.Label(MainWin, text = "Entered Wrong OTP!!").pack()
+        msg.showwarning("Invalid!!","Entered OTP is wrong.\nPlease check it again!!.")
 
     
 #empty line
@@ -105,7 +106,7 @@ def validate(email, pswrd):
     em_txt = email
     if em_txt == "":
         msg.showwarning("Empty!!","Email ID cannot be empty.")
-    elif em_txt[len(em_txt)-4:len(em_txt)] != '.com':
+    elif em_txt[len(em_txt)-9:len(em_txt)] != 'gmail.com':
         msg.showwarning("Invalid!!","Please Enter a valid Email ID.")
     elif '@' not in em_txt:
         msg.showwarning("Invalid!!","Please Enter a valid Email ID.")
@@ -116,7 +117,7 @@ def validate(email, pswrd):
         return True
 
 def go_ahead(email, passwrd):
-    connection = sql.connect(host = 'localhost', user = 'root', password = 'Dongle@123', database="dds_user")
+    connection = sql.connect(host = 'localhost', user = 'root', password = 'root', database="dds_user")
     point = connection.cursor()
     sql_query = "insert into users (email, password) values(%s,%s)"
     
@@ -136,7 +137,7 @@ MainWin = tk.Tk()
 MainWin.geometry("550x350+150+150")
 MainWin.resizable(False,False)
 MainWin.title("Sign Up..")
-MainWin.iconbitmap("doc.ico")
+##MainWin.iconbitmap("doc.ico")
 
 #properly centers the window
 '''MainWin.eval('tk::PlaceWindow . center')'''
@@ -160,15 +161,14 @@ pass_wrd.pack()
 
 One_tp = tk.Label(MainWin, text = "OTP ")
 otp = tk.Entry()
-submit_otp = tk.Button(MainWin, text = "Submit", command = lambda:verification(email_tex.get(), pass_wrd.get()))#verification(otp, email_tex.get(), pass_wrd.get())
+submit_otp = tk.Button(MainWin, text = "Submit", command = lambda : verification(otp, email_tex.get(), pass_wrd.get())) 
 
 empty()
 
 #lambda is important here.
-tk.Button(MainWin, text = "Sign Up", command = lambda:show_otp_widget(email_tex.get(),pass_wrd.get())).pack()#command = lambda:show_otp_widget(email_tex,pass_wrd)) || command = lambda:validate(email_tex,pass_wrd)
+tk.Button(MainWin, text = "Sign Up", height = 5, width = 10 ,command = lambda:show_otp_widget(email_tex.get(),pass_wrd.get())).pack()#command = lambda:show_otp_widget(email_tex,pass_wrd)) || command = lambda:validate(email_tex,pass_wrd)
 
 
 
 print(email_tex.get())
 print(pass_wrd.get())
-
