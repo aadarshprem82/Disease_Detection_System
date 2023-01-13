@@ -1,6 +1,6 @@
 #Modules
 import tkinter as tk
-from tkinter import messagebox as msg
+from tkinter import *
 import os
 import math
 import random
@@ -9,7 +9,62 @@ import mysql.connector as sql
 
 OTP = ""
 
-#hidden OTP widget
+##Clear Window
+def clear_everything():
+    for i in MainWin.winfo_children():
+        i.destroy()
+
+##Login_verifcation
+def check_details(email, password):
+    flag = 0
+    connection = sql.connect(host = "localhost", user = "root", password = "Dongle@123", database = "dds_user")
+    mysql = connection.cursor()
+    mysql.execute("Select * from users")
+    for i in mysql:
+        if i[0] == email:
+            if i[1] == password:
+                print("Found it!!")
+                flag = 0
+                MainWin.destroy()
+                break
+        else:
+            print("I am at wrong place")
+            flag = 1
+    if flag == 1:
+        print("Details not found!!")
+
+##Login_Page
+def login_widget():
+##    MainWin = tk.Tk()
+##    MainWin.geometry("550x350+150+150")
+    MainWin.resizable(False,False)
+    MainWin.title("Login..")
+##    MainWin.iconbitmap("doc.ico")
+
+    #properly centers the window
+    '''MainWin.eval('tk::PlaceWindow . center')'''
+
+    #Labels and Textboxes
+    tk.Label(MainWin, text = "Disease Detection System").pack()
+    tk.Label(MainWin, text = "Log In Page").pack()
+    empty()
+    #email
+    E_mail = tk.Label(MainWin,text = "Email ID ")
+    E_mail.pack()
+    email_text = tk.Entry()
+    email_text.pack()
+
+    #password
+    Pass_word = tk.Label(MainWin, text = "Password")
+    Pass_word.pack()
+    pass_text = tk.Entry(show = '*')
+    pass_text.pack()
+    empty()
+
+    tk.Button(MainWin, text = "Login", command = lambda:check_details(email_text.get(), pass_text.get())).pack()
+
+    
+##OTP widget
 def show_otp_widget(email, paswrd):
     if validate(email,paswrd):
         #OTP generation
@@ -69,6 +124,9 @@ def go_ahead(email, passwrd):
     connection.commit()
     if point.rowcount != 0:
         print("Data inserted successfully!!")
+        clear_everything()
+        
+        login_widget()
     else:
         print("Something went wrong!!")
     
@@ -78,6 +136,7 @@ MainWin = tk.Tk()
 MainWin.geometry("550x350+150+150")
 MainWin.resizable(False,False)
 MainWin.title("Sign Up..")
+MainWin.iconbitmap("doc.ico")
 
 #properly centers the window
 '''MainWin.eval('tk::PlaceWindow . center')'''
@@ -101,11 +160,11 @@ pass_wrd.pack()
 
 One_tp = tk.Label(MainWin, text = "OTP ")
 otp = tk.Entry()
-submit_otp = tk.Button(MainWin, text = "Submit", command = lambda:verification(otp, email_tex.get(), pass_wrd.get()))
+submit_otp = tk.Button(MainWin, text = "Submit", command = lambda:verification(email_tex.get(), pass_wrd.get()))#verification(otp, email_tex.get(), pass_wrd.get())
 
 empty()
 
-#lambda is way too important here.
+#lambda is important here.
 tk.Button(MainWin, text = "Sign Up", command = lambda:show_otp_widget(email_tex.get(),pass_wrd.get())).pack()#command = lambda:show_otp_widget(email_tex,pass_wrd)) || command = lambda:validate(email_tex,pass_wrd)
 
 
