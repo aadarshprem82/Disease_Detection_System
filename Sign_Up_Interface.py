@@ -51,14 +51,12 @@ def preparation(user_symptoms):
         all_symptom = " ".join([temp])
         symptoms_index[all_symptom] = i
     data_dict = {"symptom_index":symptoms_index, "prediction_classes":encoder.classes_}
-    print(data_dict)
     return prediction(user_symptoms, data_dict, svm_model, nb_model, rf_model)
 #Prediction
 def prediction(user_symptoms, data_dict, svm_model, nb_model, rf_model):
     input_symptoms = user_symptoms.split(",")
     input = [0]*len(data_dict["symptom_index"])
     for i in input_symptoms:
-        print(i)
         index = data_dict["symptom_index"][i]
         input[index] = 1
     input_data = np.array(input).reshape(1,-1)
@@ -82,7 +80,6 @@ def check_details(email, password):
         for i in mysql:
             if i[0] == email:
                 if i[1] == password:
-                    print("Found it!!")
                     flag = 0
                     main_page()
                     break
@@ -91,7 +88,6 @@ def check_details(email, password):
                     msg.showwarning("Wrong!", "You have entered a wrong password.\nTry Again!!")
                     break
             else:
-                print("I am at wrong place")
                 flag = 1
         if flag == 1:
             msg.showinfo("Not Registered","We can't find you in our database.\nTry Signing Up!!")
@@ -123,9 +119,9 @@ def final_submit():
     if check:
         input_data = formatting()
         diagnosis = preparation(input_data.title())
-        print("Diagnosis = ", diagnosis)
+
         message = f"Dear {mail},\nThis is a probable disease predicted by our ML model,\n\tThe result of detection is \"{diagnosis}\"\nNote:This is just a prediction based on stored data.\nYou can consult a concerned doctor with this \'link\'"
-        print(message)
+
         smtp = smtplib.SMTP('smtp.gmail.com',587)
         smtp.starttls()
         smtp.login("aadarshprem82@gmail.com","okmmhluijiaaoaqe")
@@ -591,13 +587,12 @@ def show_otp_widget(email, paswrd, One_tp, otp, submit_otp):
             OTP += dig[math.floor(random.random()*10)]
             
         gen_OTP = "Welcome to \"Disease Detection System\" \nPlease verify your,\nEmail Id : " + email + "\nPassword : " + paswrd + " \nwith this OTP : " + OTP + "."
-        msg = gen_OTP
+
         smtp = smtplib.SMTP('smtp.gmail.com',587)
         smtp.starttls()
         user_email = email
         smtp.login("aadarshprem82@gmail.com","okmmhluijiaaoaqe")
-        smtp.sendmail('Aadarsh',user_email,msg)
-        print(gen_OTP)
+        smtp.sendmail('Aadarsh',user_email,gen_OTP)
         
         #OTP Widget
         One_tp.grid(row=0, column=0)
@@ -612,7 +607,6 @@ def verification(temp, email, passwrd):
         msg.showwarning("Wrong!!","Entered Wrong OTP")
 
 def validate_login(email, pswrd):
-    print("I am into validation..")
     em_txt = email
     if em_txt == "":
         msg.showwarning("Empty!!","Email ID cannot be empty.")
@@ -624,7 +618,6 @@ def validate_login(email, pswrd):
         return True
 
 def validate(email, pswrd):
-    print("I am into validation..")
     em_txt = email
     flag = 0
     connection = sql.connect(host = 'localhost', user = 'root', password = 'Dongle@123', database="dds_user")
@@ -655,12 +648,10 @@ def go_ahead(email, passwrd):
     point.execute(sql_query,(email, passwrd))
     connection.commit()
     if point.rowcount != 0:
-        print("Data inserted successfully!!")
         clear_everything()
-        
         login_widget()
     else:
-        print("Something went wrong!!")
+        msg.showwarning("Error!","Something wrong with the insertion.")
     
 
 #MainWin(Login or SignUp Page)
@@ -723,4 +714,5 @@ def sign_up_widget():
             ).grid(row=0, column = 0, padx=10, pady=10)
 
 login_widget()
+MainWin.mainloop()
 ##main_page()
