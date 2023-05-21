@@ -24,7 +24,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 #Image_Modules
 from tkinter import filedialog
 from tkinter.filedialog import askopenfile
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageChops
 
 OTP = ""
 input_set = set()
@@ -119,21 +119,24 @@ def click(event):
         if i not in input_set:
             input_set.add(event.get(i))
         print(event.get(i))
-        
+
+def text_predict():
+    input_data = formatting()
+    diagnosis = preparation(input_data.title())
+    final_submit(diagnosis)
+
 #Sending Diagnosis
-def final_submit():
+def final_submit(diagnosis):
     check = msg.askokcancel("Continue!!",
     "Your diagnosis statement will be sent to you on your registered e-mail.\n(Please bear with us it can take few minutes.)")
     if check:
-        input_data = formatting()
-        diagnosis = preparation(input_data.title())
-
         message = f"Dear {mail},\nThis is a probable disease predicted by our ML model,\n\tThe result of detection is \"{diagnosis}\"\nNote:This is just a prediction based on stored data.\nYou can consult a concerned doctor with this \'link\'"
 
-        smtp = smtplib.SMTP('smtp.gmail.com',587)
-        smtp.starttls()
-        smtp.login("aadarshprem82@gmail.com","okmmhluijiaaoaqe")
-        smtp.sendmail('Aadarsh',mail,message)
+##        smtp = smtplib.SMTP('smtp.gmail.com',587)
+##        smtp.starttls()
+##        smtp.login("aadarshprem82@gmail.com","okmmhluijiaaoaqe")
+##        smtp.sendmail('Aadarsh',mail,message)
+        print(message)
         thank_you()
     else:
         MainWin.destroy()
@@ -142,7 +145,9 @@ def formatting():
     global input_set
     input_string = ",".join(input_set)
     print("Input String is ",input_string)
-    return input_string
+    diagnosis = preparation(input_string.title())
+    final_submit(diagnosis)
+##    return input_string
 
 def upper_body_symptoms():
     clear_everything()
@@ -517,7 +522,7 @@ def lower_body_symptoms():
     ##Button to Final Last Submit
     tk.Button(lower_border, text="Final Submit",background="salmon",
               font=("Roboto bold",10),width=30,
-              command=lambda:final_submit()).grid(row=0, column=0)
+              command=lambda:formatting()).grid(row=0, column=0)
 
     tk.Label(lower_border, text="  ", background="lightgreen").grid(row=0, column=1)
     
@@ -525,24 +530,94 @@ def lower_body_symptoms():
               font=("Roboto bold",10),width=30,
               command=lambda:mid_body_symptoms()).grid(row=0, column=2)
 
-def check_image():
-    clear_everything()
-    global load
-    loading = "C:/Users/Admin/AppData/Local/Programs/Python/Python311/mainimage.jpg"
-    load = ImageTk.PhotoImage(file="C:/Users/Admin/AppData/Local/Programs/Python/Python311/mainimage.jpg")
-    l=tk.Label(MainWin, image=load, bg="lightgreen")
-    l.grid(row=3,column=1)
+def check_image(file):
+    final = tk.Label(MainWin, text="Checking...", width=20,
+             font=("Arial Bold", 24), padx=5, pady=0,bg="light green"
+             ).grid(row=4, column = 0, padx=5, pady=10)
+    image = Image.open(file)
+    x = np.array(image.histogram())
+
+    dis_dict = {}
+    tally = {}
+    for j in range(47):
+        y_file = f"Eye_diseases/Cataracts/{j}.jpeg"
+        rest = Image.open(y_file)
+        y = np.array(rest.histogram())
+        try:
+            if len(x) == len(y):
+                error = np.sqrt(((x-y) ** 2).mean())
+                error = str(error)[:2]
+                actual_error = float(100) - float(error)
+            diff = ImageChops.difference(image, rest).getbbox()
+            if diff:
+                tally[j] = actual_error
+            else:
+                tally[j] = actual_error
+                continue
+        except ValueError as identifier:
+            print("Matching Images in percentage : ", actual_error, " %")
+
+    dis_dict["Cataract"] = max(tally.values())
+
+    tally = {}
+    for j in range(17):
+        y_file = f"Eye_diseases/Glaucoma/{j}.jpeg"
+        template = Image.open(y_file)
+        y = np.array(template.histogram())
+        try:
+            if len(x) == len(y):
+                error = np.sqrt(((x-y) ** 2).mean())
+                error = str(error)[:2]
+                actual_error = float(100) - float(error)
+            diff = ImageChops.difference(image, template).getbbox()
+            if diff:
+                tally[j] = actual_error
+            else:
+                tally[j] = actual_error
+                continue
+        except ValueError as identifier:
+            print("Matching Images in percentage : ", actual_error, " %")
+            
+    dis_dict["Glaucoma"] = max(tally.values())
+
+    tally = {}
+    for j in range(26):
+        y_file = f"Eye_diseases/Uveitis/{j}.jpeg"
+        template = Image.open(y_file)
+        y = np.array(template.histogram())
+        try:
+            if len(x) == len(y):
+                error = np.sqrt(((x-y) ** 2).mean())
+                error = str(error)[:2]
+                actual_error = float(100) - float(error)
+            diff = ImageChops.difference(image, template).getbbox()
+            if diff:
+                tally[j] = actual_error
+            else:
+                tally[j] = actual_error
+                continue
+        except ValueError as identifier:
+            print("Matching Images in percentage : ", actual_error, " %")
+
+    dis_dict["Uveitis"] = max(tally.values())
+    diagnosis = ""
+    for i in dis_dict.keys():
+        if dis_dict[i] == 100:
+            diagnosis = i+" or"
+            break
+        if dis_dict[i] >= 85:
+            diagnosis += i+" or "
+    final_submit(diagnosis[:-3])
 
 def get_image_dialog():
     global img
-    types = [('Jpg Files','*.jpg')]
+    types = [("Jpeg Files","*.jpeg"), ('Jpg Files','*.jpg')]
     filename = filedialog.askopenfilename(filetypes = types)
-    print(filename," = ",type(filename))
     img = ImageTk.PhotoImage(file=filename)
     b2=tk.Label(MainWin, image=img, bg="light green")
     b2.grid(row=2, column=0)
     submit_image = tk.Button(MainWin, text="Check", width=15,
-            font=("Roboto bold", 12), command=lambda:check_image()
+            font=("Roboto bold", 12), command=lambda:check_image(filename)
             ).grid(row=3, column=0, padx=5, pady=10)
 
 ##Detection_through_Images
@@ -555,6 +630,8 @@ def main_image_page():
             font=("Roboto bold", 12), command=lambda:get_image_dialog()
             ).grid(row=1, column=0, padx=5, pady=10)
 
+def camera():
+    msg.showwarning("Comming Soon", "This feature will get added on next update.")
 ##Main_Page
 def main_page():
     clear_everything()
@@ -569,8 +646,7 @@ def main_page():
             font=("Roboto bold", 12), command=lambda:main_image_page()
             ).grid(row=2, column=0, padx=5, pady=10)
     tk.Button(MainWin, text="Detection through Camera",  width=25,
-            font=("Roboto bold", 12), command=lambda:msg.showwarning("Comming Soon",
-            "This feature will get added on next update.")
+            font=("Roboto bold", 12), command=lambda:camera()
             ).grid(row=3, column=0, padx=5, pady=10)
 
 ##Login_Page
