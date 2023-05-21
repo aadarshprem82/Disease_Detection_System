@@ -120,11 +120,6 @@ def click(event):
             input_set.add(event.get(i))
         print(event.get(i))
 
-def text_predict():
-    input_data = formatting()
-    diagnosis = preparation(input_data.title())
-    final_submit(diagnosis)
-
 #Sending Diagnosis
 def final_submit(diagnosis):
     check = msg.askokcancel("Continue!!",
