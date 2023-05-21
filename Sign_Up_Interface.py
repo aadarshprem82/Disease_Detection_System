@@ -8,7 +8,7 @@ import random
 import smtplib
 import mysql.connector as sql
 
-#ML Modules
+#ML_Modules
 import numpy as np
 import pandas as pd
 from scipy.stats import mode
@@ -21,13 +21,20 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
+#Image_Modules
+from tkinter import filedialog
+from tkinter.filedialog import askopenfile
+from PIL import Image, ImageTk
+
 OTP = ""
 input_set = set()
 mail = ""
+
 #Clear Window
 def clear_everything():
     for i in MainWin.winfo_children():
         i.destroy()
+    
 #Model Creation
 def preparation(user_symptoms):
     data = pd.read_csv("Training.csv").dropna(axis = 1)
@@ -52,6 +59,7 @@ def preparation(user_symptoms):
         symptoms_index[all_symptom] = i
     data_dict = {"symptom_index":symptoms_index, "prediction_classes":encoder.classes_}
     return prediction(user_symptoms, data_dict, svm_model, nb_model, rf_model)
+
 #Prediction
 def prediction(user_symptoms, data_dict, svm_model, nb_model, rf_model):
     input_symptoms = user_symptoms.split(",")
@@ -517,6 +525,36 @@ def lower_body_symptoms():
               font=("Roboto bold",10),width=30,
               command=lambda:mid_body_symptoms()).grid(row=0, column=2)
 
+def check_image():
+    clear_everything()
+    global load
+    loading = "C:/Users/Admin/AppData/Local/Programs/Python/Python311/mainimage.jpg"
+    load = ImageTk.PhotoImage(file="C:/Users/Admin/AppData/Local/Programs/Python/Python311/mainimage.jpg")
+    l=tk.Label(MainWin, image=load, bg="lightgreen")
+    l.grid(row=3,column=1)
+
+def get_image_dialog():
+    global img
+    types = [('Jpg Files','*.jpg')]
+    filename = filedialog.askopenfilename(filetypes = types)
+    print(filename," = ",type(filename))
+    img = ImageTk.PhotoImage(file=filename)
+    b2=tk.Label(MainWin, image=img, bg="light green")
+    b2.grid(row=2, column=0)
+    submit_image = tk.Button(MainWin, text="Check", width=15,
+            font=("Roboto bold", 12), command=lambda:check_image()
+            ).grid(row=3, column=0, padx=5, pady=10)
+
+##Detection_through_Images
+def main_image_page():
+    clear_everything()
+    tk.Label(MainWin, text = "Select the Image", width=29,
+             font=("Arial Bold", 24), padx=5, pady=30,bg="light green"
+             ).grid(row = 0, column = 0, pady=7)
+    upload_button = tk.Button(MainWin, text="Upload Image", width=25,
+            font=("Roboto bold", 12), command=lambda:get_image_dialog()
+            ).grid(row=1, column=0, padx=5, pady=10)
+
 ##Main_Page
 def main_page():
     clear_everything()
@@ -528,8 +566,7 @@ def main_page():
             font=("Roboto bold", 12), command=lambda:upper_body_symptoms()
             ).grid(row=1, column=0, padx=5, pady=10)
     tk.Button(MainWin, text="Detection through Images",  width=25,
-            font=("Roboto bold", 12), command=lambda:msg.showwarning("Comming Soon",
-            "This feature will get added on next update.")
+            font=("Roboto bold", 12), command=lambda:main_image_page()
             ).grid(row=2, column=0, padx=5, pady=10)
     tk.Button(MainWin, text="Detection through Camera",  width=25,
             font=("Roboto bold", 12), command=lambda:msg.showwarning("Comming Soon",
@@ -588,12 +625,12 @@ def show_otp_widget(email, paswrd, One_tp, otp, submit_otp):
             
         gen_OTP = "Welcome to \"Disease Detection System\" \nPlease verify your,\nEmail Id : " + email + "\nPassword : " + paswrd + " \nwith this OTP : " + OTP + "."
 
-        smtp = smtplib.SMTP('smtp.gmail.com',587)
-        smtp.starttls()
-        user_email = email
-        smtp.login("aadarshprem82@gmail.com","okmmhluijiaaoaqe")
-        smtp.sendmail('Aadarsh',user_email,gen_OTP)
-        
+##        smtp = smtplib.SMTP('smtp.gmail.com',587)
+##        smtp.starttls()
+##        user_email = email
+##        smtp.login("aadarshprem82@gmail.com","okmmhluijiaaoaqe")
+##        smtp.sendmail('Aadarsh',user_email,gen_OTP)
+        print(gen_OTP)
         #OTP Widget
         One_tp.grid(row=0, column=0)
         otp.grid(row=0, column = 1)
